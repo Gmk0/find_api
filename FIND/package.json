@@ -10,11 +10,27 @@
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.6",
-    "vue": "^3.2.47"
+    "@tailwindcss/typography": "^0.5.10",
+    "aos": "^2.3.4",
+    "axios": "^1.5.1",
+    "laravel-vue-pagination": "^4.1.1",
+    "lodash": "^4.17.21",
+    "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.0",
+    "primevue": "^3.37.0",
+    "swiper": "^10.3.1",
+    "vee-validate": "^4.11.8",
+    "vue": "^3.2.47",
+    "vue-collapsed": "^1.2.9",
+    "vue-router": "^4.2.5",
+    "vue-sweetalert2": "^5.0.5",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
     "autoprefixer": "^10.4.16",
+    "daisyui": "^3.9.3",
+    "dotenv": "^16.3.1",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.3",
     "vite": "^4.3.9"
