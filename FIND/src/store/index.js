@@ -5,54 +5,122 @@ import axiosClient from "../axios";
 
 export const useCategoryStore = defineStore(
     'categories', {
-        state: () => ({
-            categorieElement: null,
-            authErrors: [],
-            subCategoriesbyId: [],
-            authStatus: null,
-            OneService:[],
-        }),
-        getters: {
-            categories: (state) => state.categorieElement,
-            subCategoriesbyCategory: (state) => state.subCategoriesbyId,
-            service: (state) => state.OneService
+    state: () => ({
+        categorieElement: null,
+        authErrors: [],
+        subCategoriesbyId: [],
+        authStatus: null,
+        OneService: [],
+        tagsSearch: [],
+        sameCategoryFetch: null,
+        serviceBest: [],
+        servicePopular: [],
+    }),
+    getters: {
+        categories: (state) => state.categorieElement,
+        subCategoriesbyCategory: (state) => state.subCategoriesbyId,
+        service: (state) => state.OneService,
+        tags: (state) => state.tagsSearch,
+        sameCategory: (state) => state.sameCategoryFetch,
+        serviceBestGet: (state) => state.serviceBest,
+        servicePopularGet: (state) => state.servicePopular
 
-        },actions: {
+    }, actions: {
 
-            async getCategories(){
+        async getCategories() {
 
-                const response = await axiosClient.get('/getAllCategories');
-                this.categorieElement = response.data
-            },
+            const response = await axiosClient.get('/getAllCategories');
+            this.categorieElement = response.data
+        },
 
-            async fetchSubcategories(id){
-                const response = await axiosClient.get(`/subcategories/${id}`);
-                this.subCategoriesbyId = response.data;
+        async fetchSubcategories(id) {
+            const response = await axiosClient.get(`/subcategories/${id}`);
+            this.subCategoriesbyId = response.data;
 
-            },
-            async fetchServices(service) {
-                console.log(service)
-                 const response = await axiosClient.get(`/oneService/${service}`);
-                 this.OneService = response.data.data;
+        },
+        async fetchServices(service) {
 
+            try {
+                const response = await axiosClient.get(`/oneService/${service}`);
+                this.OneService = response.data.data;
+                this.sameCategoryFetch = response.data.sameCategory;
+
+            } catch (err) {
+                if (err.response.status === 422) {
+                    this.router.push('/');
+
+                }
             }
+
+
+        },
+        async fetchTags(service) {
+
+            try {
+                const response = await axiosClient.get(`/getServices/${service}`);
+                this.tagsSearch = response.data.tags;
+
+            } catch (err) {
+                console.error(err);
+            }
+        },
+        async fetchTagsSubactegory(category) {
+            try {
+                const response = await axiosClient.get(`/getServicesBySub/${category}`);
+                this.tagsSearch = response.data.tags;
+
+            } catch (err) {
+                console.error(err);
+            }
+
+        },
+        async fetchServicesBest() {
+
+            try {
+                const response = await axiosClient.get(`/bestServices`);
+                this.serviceBest = response.data.data;
+
+
+            } catch (err) {
+                if (err.response.status === 422) {
+
+
+                }
+            }
+
+        },
+        async fetchServicesPopulars() {
+
+            try {
+                const response = await axiosClient.get(`/popularServices`);
+                this.servicePopular = response.data.data;
+
+
+            } catch (err) {
+                if (err.response.status === 422) {
+
+
+                }
+            }
+
         }
+    }
 
 });
 
-export const useFreelanceStore = defineStore('freelance',{
-    state:()=>({
-        Allfreelance :[],
+export const useFreelanceStore = defineStore('freelance', {
+    state: () => ({
+        Allfreelance: [],
     }),
-    getters:{
+    getters: {
         freelances: (state) => state.Allfreelance
     },
     actions: {
-        async getAllFreelances(){
+        async getAllFreelances() {
             const response = await axiosClient.get('/getAllFreelance');
             this.Allfreelance = response.data;
         },
-        async storeFreelance(data){
+        async storeFreelance(data) {
             try {
                 const response = await axiosClient.post('/storeFreelance', data);
 
@@ -89,7 +157,7 @@ export const useAuthStore = defineStore(
             await axiosClient.get("/sanctum/csrf-cookie");
 
         },
-        async getTokenElement(token){
+        async getTokenElement(token) {
 
             this.tokenAuth = token;
             if (token) {
@@ -108,14 +176,14 @@ export const useAuthStore = defineStore(
         },
         async handleSubmit(data) {
             this.authErrors = [];
-           // this.getToken();
+            // this.getToken();
             try {
                 const response = await axiosClient.post('/login', {
                     email: data.email,
                     password: data.password,
                 });
 
-                this.authUser =response.data.data;
+                this.authUser = response.data.data;
                 this.getTokenElement(response.data.token)
 
                 this.router.push('/');
@@ -136,7 +204,7 @@ export const useAuthStore = defineStore(
             try {
                 const response = await axiosClient.post('/register', {
                     name: data.name,
-                    phone:data.phone,
+                    phone: data.phone,
                     email: data.email,
                     password: data.password,
                     password_confirmation: data.password_confirmation
@@ -159,13 +227,13 @@ export const useAuthStore = defineStore(
 
         },
         async HandleLogout() {
-            try{
+            try {
 
                 await axiosClient.post("/logout");
-               this.authUser = null;
+                this.authUser = null;
                 this.getTokenElement(null);
                 this.router.push('/');
-            }catch(error){
+            } catch (error) {
                 console.log(error.response.status);
             };
 
@@ -203,8 +271,154 @@ export const useAuthStore = defineStore(
             }
 
         }
-    }
+
+    },
+    persist: true,
+
 });
+
+
+
+export const cartStore = defineStore('cart', {
+    state: () => ({
+        items: [],
+        status: null,
+        statusPayement: [],
+        payementGetLink:'',
+    }),
+    getters: {
+        totalItems: (state) => state.items.length,
+        totalCost: (state) => {
+            return state.items.reduce((total, item) => total + item.price * item.quantity, 0);
+        },
+        statusError: (state) => state.status,
+        statusPayementGet: (state) => state.statusPayement,
+
+
+    },
+    actions: {
+        async addItem(item) {
+            // Vérifiez si l'article est déjà dans le panier
+            const existingItem = this.items.find((i) => i.id === item.id);
+
+            if (existingItem) {
+                // Si l'article existe, mettez à jour la quantité
+                existingItem.quantity += 1;
+            } else {
+                // Sinon, ajoutez l'article au panier
+                this.items.push({ ...item, quantity: 1 });
+            }
+        },
+        async removeItem(itemId) {
+            const index = this.items.findIndex((item) => item.id === itemId);
+
+            if (index !== -1) {
+                this.items.splice(index, 1);
+            }
+        },
+        async updateItemQuantity({ itemId, newQuantity }) {
+            const item = this.items.find((i) => i.id === itemId);
+
+            if (item) {
+                item.quantity = newQuantity;
+            }
+        },
+        async clearCart() {
+            this.items = []; // Remise à zéro du tableau d'articles du panier
+        },
+
+
+        async checkoutMaxi(data) {
+            this.status = [];
+            // this.getToken();
+            try {
+                console.log(data);
+                const response = await axiosClient.post('/checkout-maxi',{
+                    name: data.name,
+                    numero : data.numero,
+                    items: this.items,
+                    totalprice: this.totalCost
+                });
+
+                return  response.data;
+
+                // this.router.push('/');
+               // console.log(this.statusPayement);
+
+
+            } catch (error) {
+                if (error.response.status === 422) {
+
+                    console.log(error.response.data.errors);
+                }
+
+            }
+
+        },
+
+
+
+        async handleMaxiStatus(data){
+            this.status = [];
+            // this.getToken();
+            try {
+
+                const response = await axiosClient.post('/checkout-maxi-status', {
+                    status: data.status,
+                    reference: data.reference,
+                    method: data.reference, // Enlevez la virgule en trop ici
+                });
+
+                this.clearCart();
+                return response.data;
+
+                //console.log(response.data);
+            } catch (error) {
+
+                if (error.response && error.response.data && error.response.data.message) {
+                    this.status = error.response.data;
+                } else {
+                    console.log("Une erreur inattendue s'est produite :", error);
+                }
+            }
+
+        },
+
+    },
+    persist: true,
+});
+
+
+export const useLayoutStore = defineStore('userLayout',{
+    state: ()=>({
+        isDarkModeEnabled: false,
+        isMonochromeModeEnabled: false,
+        isSearchbarActive: false,
+        isSidebarExpanded: false,
+        isRightSidebarExpanded: false,
+    }),
+    getters:{
+        SidebarExpanded: (state) => state.isRightSidebarExpanded,
+    },
+
+    actions: {
+        toogleRight(){
+            this.isRightSidebarExpanded = !this.isRightSidebarExpanded
+        },
+        ToogleFalse(){
+            this.isRightSidebarExpanded =false
+
+        },
+        ToogleTrue() {
+            this.isRightSidebarExpanded = true
+
+        }
+    }
+
+
+})
+
+
 
 
 

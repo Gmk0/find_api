@@ -14,6 +14,9 @@ import 'swiper/css/scrollbar';
 import 'swiper/css/effect-cube';
 import 'swiper/css/autoplay';
 
+import { cartStore } from '../store';
+
+const usecartStore = cartStore();
 
 const props = defineProps({
     service : Object,
@@ -36,6 +39,17 @@ const navigateFreelance = (direction) => {
     }
 };
 
+const addToCart=()=> {
+    const item =
+    {
+    id: props.service.id,
+    name: props.service.title,
+    price: props.service.basic_price,
+    level: 'basic',
+    image : url + props.service.image[0]
+     }; // Exemple d'article
+    usecartStore.addItem(item);
+};
 
 </script>
 
@@ -57,10 +71,7 @@ const navigateFreelance = (direction) => {
                 effect="fade"
                 :slides-per-view="1"
 
-                :autoplay="{
-                    delay: 4000,
-                    disableOnInteraction: false
-                }"
+
                  @swiper="onSwiperInitialized"
                 >
 
@@ -173,7 +184,7 @@ const navigateFreelance = (direction) => {
                     a partir de
                 </div>
 
-                <button  class=" bg-skin-fill p-2 text-white !rounded-br-xl !rounded-md">
+                <button @click="addToCart()" class=" bg-skin-fill p-2 text-white !rounded-br-xl !rounded-md">
                     <span class="font-semibold">{{ props.service.basic_price }} $</span>
                 </button>
 

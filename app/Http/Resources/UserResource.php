@@ -26,7 +26,8 @@ class UserResource extends JsonResource
             'profile_photo_path'=>$this->profile_photo_path,
             'profile_photo_url'=>$this->profile_photo_url,
             'isFreelance' => $this->freelance ? true:false,
-            'created_at'=>$this->created_at
+            'created_at'=>$this->created_at,
+
             ];
     }
 }

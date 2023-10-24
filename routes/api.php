@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\FreelanceController;
+use App\Http\Controllers\Api\{ServiceController, UserTransactionController};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,16 +29,32 @@ Route::middleware(['auth:sanctum'])->group(function(){
     Route::post('/logout', [AuthController::class, 'logout'])->name('logoutUser')->middleware('auth:sanctum');
 
     Route::post('/storeFreelance',[FreelanceController::class, 'storeFreelance'])->name('storeFreelance');
+
+    Route::post('/checkout-maxi',[CheckoutController::class,'checkoutMaxi']);
+    Route::post('/checkout-maxi-status', [CheckoutController::class, 'checkoutMaxiStatus']);
+
+
+    Route::controller(UserTransactionController::class)->group(function(){
+
+        Route::get('/user/getUserTransaction', 'getUserTransaction')->name('getUserTransaction');
+
+    });
 });
 
+
+
+
+
 Route::post('/login',[AuthController::class, 'auth'])->name('loginToken');
-
-
 Route::post('/register', [AuthController::class, 'register'])->name('registerToken');
-
-
-
 Route::get('/getAllFreelance', [FreelanceController::class, 'getAllFreelance'])->name('getAllFreelance');
+Route::controller(ServiceController::class)->group(function(){
+
+    Route::get('/popularServices',  'popularServices')->name('popularServices');
+    Route::get('/bestServices',  'bestServices')->name('bestServices');
+
+
+});
 
 
 Route::controller(CategoryController::class)->group(function () {
@@ -46,4 +64,5 @@ Route::controller(CategoryController::class)->group(function () {
     Route::get('/subcategories/{categoryId}', 'getByCategoryId')->name('fetchAllSubCategory');
     Route::get('/getServices/{category}', 'fetchAllServicesByCategory')->name('fetchAllServices');
     Route::get('/oneService/{service}','fetchOneService')->name('oneService');
+    Route::get('/getServicesBySub/{subcategory}', 'getServicesBySub')->name('getServicesBySub');
 });

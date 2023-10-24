@@ -119,4 +119,9 @@ class User extends Authenticatable
     {
         return $this->freelance->id;
     }
+
+    public function panier()
+    {
+        return $this->hasMany(Panier::class);
+    }
 }

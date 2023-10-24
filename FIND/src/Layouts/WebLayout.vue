@@ -12,6 +12,11 @@ import { onMounted } from 'vue';
 const categoryStore = useCategoryStore();
  const userStore = useAuthStore();
 
+ const fetchElement=async ()=>{
+     categoryStore.fetchServicesBest();
+    categoryStore.fetchServicesPopulars();
+
+ }
 
 onMounted( async () => {
 
@@ -21,6 +26,8 @@ onMounted( async () => {
 
 
     categoryStore.getCategories();
+    fetchElement();
+
 
 });
 

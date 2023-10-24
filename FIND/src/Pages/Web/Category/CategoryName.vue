@@ -1,13 +1,18 @@
 
 <script setup>
 import WebLayout from '../../../Layouts/WebLayout.vue';
-import {useRoute} from 'vue-router';
-import {ref, onMounted, computed} from 'vue';
+import {useRoute, useRouter } from 'vue-router';
+import {ref, onMounted, computed, watch } from 'vue';
 import { useAuthStore, useCategoryStore } from '../../../store';
 import axiosClient from '../../../axios';
 
+import pickBy from 'lodash/pickBy';
+import throttle from 'lodash/throttle';
+
+
 
 const route = useRoute();
+const router = useRouter();
 const name = ref('');
 
 const useCategory = useCategoryStore();
@@ -15,7 +20,6 @@ const useCategory = useCategoryStore();
 
 
 const categories = computed(() => useCategory.categories);
-
 
 
 const form = ref({
@@ -29,7 +33,8 @@ const form = ref({
 
 });
 
-const tags =ref([]);
+const tags = computed(()=> useCategory.tags);
+const url = import.meta.env.VITE_VUE_APP_BACKEND_URI;
 
 const showDeliveryFilter = ref(false);
 const showCategoryFilter = ref(true);
@@ -91,6 +96,8 @@ const trieElement = ref([
     }
 ])
 
+const pageP = ref(null);
+
 const subcategories =ref([]);
 const services =ref([]);
 
@@ -113,9 +120,12 @@ const fetchSubcategories = async () => {
 const fetchServices = async () => {
     try {
         if (name.value) {
-            const response = await axiosClient.get(`/getServices/${name.value}`);
+
+            const params = form.value;
+            const response = await axiosClient.get(`/getServices/${name.value}`, {
+                params, // Utilisez l'objet params comme paramètres de requête
+            });
             services.value = response.data;
-            //console.log(services.value);
             isLoadingSubcategorie.value = true;
 
         } else {
@@ -130,11 +140,114 @@ onMounted( async() => {
 
     name.value = route.params.name;
     fetchSubcategories();
+    fetchServices();
+    useCategory.fetchTags(name.value);
+    syncQueryParamsWithForm();
+});
 
+watch(() => route.params, () => {
+    name.value = route.params.name;
+    fetchSubcategories();
     fetchServices();
 
-
 });
+
+const updateRouteWithSearch = () => {
+    // Construisez un nouvel objet de paramètres basé sur le formulaire actuel
+    const newParams = {};
+    if (form.value.search) {
+        newParams.search = form.value.search;
+    }
+    if (form.value.deliveryTime) {
+        newParams.deliveryTime = form.value.deliveryTime;
+    }
+    if (form.value.sub_categorie) {
+        newParams.sub_categorie = form.value.sub_categorie;
+    }
+    if (form.value.price) {
+        newParams.price = form.value.price;
+    } if (form.value.orderBy) {
+        newParams.orderBy = form.value.orderBy;
+    } if (form.value.level) {
+        newParams.level = form.value.level;
+    } if (form.value.tag) {
+        newParams.tag = form.value.tag;
+    }
+
+
+
+
+    // Utilisez `router.push` pour mettre à jour l'URL avec les nouveaux paramètres
+    router.push({ name: route.name, query: newParams });
+};
+const syncQueryParamsWithForm = () => {
+    if (route.query.search) {
+        form.value.search = route.query.search;
+    }
+    if (route.query.sub_categorie) {
+        form.value.sub_categorie = route.query.sub_categorie;
+    }
+    if (route.query.price) {
+        form.value.price = route.query.price;
+    }
+    if (route.query.orderBy) {
+        form.value.orderBy = route.query.orderBy;
+    }
+};
+
+
+const getResults = async (page = 1) => {
+    pageP.value = {
+        page: page
+    };
+
+    let newParams = {};
+
+    if (pageP.value) {
+        newParams.page = pageP.value.page;
+    }
+
+    router.push({ name: route.name, query: newParams });
+}
+
+
+const getWithPagination = async () => {
+    try {
+
+        const response = await axiosClient.get('/getServices/' + name.value, {
+            params: {
+                page: pageP.value.page, // Définissez un nom de paramètre pour "page" dans les paramètres de requête
+            },// Utilisez l'objet params comme paramètres de requête
+        });
+
+        services.value = response.data;
+
+    } catch (error) {
+        console.error('An error occurred while fetching subcategories:', error);
+    }
+
+}
+
+watch(
+    form,
+    throttle(() => {
+        updateRouteWithSearch();
+        fetchServices();
+    }, 3000),
+    { deep: true }
+);
+
+watch(
+    pageP,
+    throttle(() => {
+        getWithPagination();
+    }),
+    { deep: true }
+);
+
+
+
+
 
 </script>
 <template>
@@ -144,13 +257,14 @@ onMounted( async() => {
         <div class="relative w-full min-h-screen py-16 pb-12 ">
 
             <div>
-                <div class="relative h-24 bg-skin-fill">
-                        <img class="hidden object-cover w-full h-full opacity-70" src="" alt="Women"
-                            title="" />
+                <div class="relative h-20 bg-green-500 ">
+
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <h1 class="text-lg font-bold text-white lg:text-4xl">{{ name }}</h1>
+                            <h1 class="text-4xl font-bold text-white">{{ name }}</h1>
                         </div>
-                </div>
+                    </div>
+
+
 
 
 
@@ -174,7 +288,7 @@ onMounted( async() => {
                                     </div>
                                     <div class="flex gap-2 lg:hidden ">
                                         <div>
-                                              <Dropdown v-model="form.orderBy" optionValue="code" :options="trieElement" showClear optionLabel="name" placeholder="Trier par" size="small" class="w-full md:w-14rem" />
+                                              <Dropdown v-model="form.orderBy" optionValue="code" :options="trieElement" showClear optionLabel="name" placeholder="Trier par"  class="w-full md:w-14rem" />
 
                                         </div>
                                     </div>
@@ -234,8 +348,8 @@ onMounted( async() => {
 
                                                 <div aria-hidden="true" class="flex justify-between px-1">
                                                     <div class="flex justify-between gap-4 p-2 border">
-                                                         <TextInput value="10 $" disabled class="w-1/2 rounded-md " size="small" />
-                                                      <TextInput v-model.number="form.price" placeholder=" a" class="w-1/2 rounded-md" size="small" />
+                                                         <TextInput value="10 $" disabled class="w-1/2 rounded-md "  />
+                                                      <TextInput v-model.number="form.price" placeholder=" a" class="w-1/2 rounded-md"  />
                                                     </div>
                                                 </div>
 
@@ -320,14 +434,24 @@ onMounted( async() => {
                                                     </svg>
                                                 </button>
                                                 <Collapse :when="showTagFilter">
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <div v-for="(tag, index) in tags" class="">
+                                                        <button @click="setTag(tag)"
 
-                                                    <span v-for="(tag, index) in tags"
-                                                        class="inline-block px-3 py-1 mb-2 mr-2 text-sm font-semibold rounded-full cursor-pointer"
-                                                      :class="{ 'border-2 border-amber-500 bg-amber-100 text-amber-700': form.tag === tag, 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200': form.tag !== tag }"
+                                                            :class="{ 'border-2 border-amber-500 bg-amber-100 text-amber-700 translate-x-4': form.tag == tag, 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200': form.tag != tag }"
 
-                                                       >
-                                                        {{ tag }}
-                                                    </span>
+
+                                                            class="flex gap-2 p-2 transition-all transform rounded-lg shadow-sm bg-gray-50 ">
+
+                                                            <span class="text-gray-700 dark:text-gray-50">{{ tag }}</span>
+                                                            <!-- Adjusted span for the number -->
+
+                                                        </button>
+                                                    </div>
+
+                                                    </div>
+
+
 
 
                                                 </Collapse>
@@ -368,12 +492,12 @@ onMounted( async() => {
                                             <Dropdown v-model="form.orderBy" optionValue="code" :options="trieElement" showClear optionLabel="name" placeholder="Trier par" size="small" class="w-full md:w-14rem" />
 
                                     </div>
-                                    <div class=" lg:block">
-                                        <!--
-                                             <pagination class="mt-6" :links="props.services.links" />-->
+                                                  <div class=" lg:block">
+                                                  <TailwindPagination
+                                                    :data="services"
+                                                 @pagination-change-page="getResults" />
 
-                                            </div>
-
+                                                </div>
 
 
                                 </div>
@@ -401,14 +525,16 @@ onMounted( async() => {
 
                                 <div class="py-4">
 
-                                    <!--
+
 
                                     <div>
-                                           <pagination class="mt-6" :links="props.services.links" />
+                                        <TailwindPagination
+                                                        :data="services"
+                                                     @pagination-change-page="getResults" />
 
 
                                     </div>
-                                    -->
+
 
 
                                 </div>
@@ -432,7 +558,7 @@ onMounted( async() => {
                                         <router-link :to="{ name: 'Category.name', params: { name: category.name } }"
                                             class="flex gap-2 p-2 transition-all transform bg-gray-200 rounded-lg shadow-sm dark:bg-gray-700 hover:scale-95 active:bg-amber-400 focus:bg-amber-400 focus:text-gray-50 ">
 
-                                                <img :src="'/storage/' + category.illustration" class="object-fill w-8 p-1 rounded-md" alt="">
+                                                <img :src="url + category.illustration" class="object-fill w-8 p-1 rounded-md" alt="">
 
 
                                             <span class="">{{ category.name }}</span>

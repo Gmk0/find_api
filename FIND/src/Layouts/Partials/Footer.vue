@@ -3,7 +3,7 @@
 
         <div class="w-full bg-gray-900 lg:bg-base-200">
 
-            <div class="text-white bg-gray-900 border-t border-gray-800 md:hidden">
+            <div class="text-white bg-gray-900 border-t border-gray-800 lg:hidden">
 
                 <!-- Footer Middle -->
                 <div class="container flex flex-col p-4 mx-auto overflow-hidden lg:flex-row">
@@ -185,7 +185,7 @@
 
             <!-- FOOTER 2 DESKTOP -->
 
-            <div class="hidden md:flex">
+            <div class="hidden lg:flex">
                 <div class="p-10 footer bg-base-200 text-base-content">
                     <div>
 

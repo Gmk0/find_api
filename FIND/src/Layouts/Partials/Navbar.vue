@@ -3,7 +3,7 @@
    <div>
     <div class="flex header-wrap classicHeader animated"
             :class="[
-                isSticky ? 'stickyNav dark:text-white fadeInDown dark:bg-gray-800' : '',
+                isSticky ? 'stickyNav fadeInDown  dark:text-white fadeInDown dark:bg-gray-800' : '',
                 route.fullPath === '/' ? '' : 'dark:bg-gray-800 bg-white'
             ]"
 
@@ -98,8 +98,8 @@
 
                                     <ul class="dropdown">
                                             <li>
-                                                <router-link :to="{name:'registration'}"
-                                                >
+                                                <router-link :to="{name:'registration'}">
+
                                                 Devenir Freelance
                                             </router-link>
 
@@ -125,16 +125,17 @@
                              </a>
                              <ul class="dropdown">
 
-                                <li><a href="" class="site-nav">Soumettre une Mission</a></li>
+                                <li><router-link :to="{name:'Create.mission'}">Soumettre une Mission</router-link></li>
                             </ul>
                         </li>
                             <li class="lvl1 parent dropdown">
-                                       <a href="route('Allservices')">
+                                <router-link :to="{name:'ServiceAll' }">
+
                                                 <span  class="dark:!text-white"  :class="{ 'lg:text-white': !isSticky && !isNotHome, 'lg:hidden': isNotHome && !isSticky, 'hidden': isSticky && isNotHome }">Services</span>
 
                                                 <span class="dark:!text-white"  :class="{ 'hidden': !isNotHome }">Services</span>
 
-                                        </a>
+                                    </router-link>
 
                             </li>
                         <li class="lvl1 parent dropdown">
@@ -146,17 +147,20 @@
                                             </a>
                             <ul class="dropdown">
                                  <li>
-                                    <a href="route('contact')">Contact</a>
+                                     <router-link :to="{ name: 'Contact' }">Contact</router-link>
+
                                 </li>
                                 <li>
-                                    <a href="route('contact')">Contact</a>
+                                    <router-link :to="{ name: 'Feedback' }">Feedback</router-link>
+
                                 </li>
                                 <li>
-                                        <a href="route('about')">A propos de nous</a>
+                                    <router-link :to="{ name: 'About' }">A propos de nous</router-link>
+
                                     </li>
                                 <li>
+                                        <router-link :to="{ name: 'Faq' }">Faq</router-link>
 
-                                        <a href="route('faq')">Faq</a>
 
 
                                 </li>
@@ -179,7 +183,10 @@
                 </div>
 
                 <div class="flex items-center justify-end col-span-3 gap-2 lg:col-span-2 ">
-                     <!--
+
+                    <CartComponent />
+
+                    <!--
                     <div v-if="$page.props.auth.user"  class="site-cart">
                           <button @click="isSearchBoxOpen = !isSearchBoxOpen" type="button" class="search-trigger">
 
@@ -275,8 +282,24 @@ isNotHomeFunt();
 
 
 
-// Éc
 
+
+
+
+function handleScroll() {
+    if (window.innerWidth > 1199) {
+        if (window.scrollY > 145) {
+            isSticky.value = true;
+            // Ajoutez d'autres modifications nécessaires ici
+        } else {
+            isSticky.value = false;
+            // Ajoutez d'autres modifications nécessaires ici
+        }
+    }
+}
+
+// Attachez l'événement de défilement au composant
+window.addEventListener('scroll', handleScroll);
 </script>
 
 <style lang="scss" scoped>

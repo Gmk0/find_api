@@ -18,19 +18,18 @@
                             <div class="block px-4 py-2 text-xs text-gray-400">
                                 Manage Account
                             </div>
+                            <div class="block px-4 py-2 text-xs text-gray-400">
+                                   {{ currentUser.email}}
+                                </div>
                               <div class="block px-4 py-2 text-xs text-gray-400">
                                     {{ currentUser.isFreelance}}
                             </div>
 
+                             <DropdownLink href="user.dashboard">
+                                        Dashboard user
+                            </DropdownLink>
 
 
-                            <div class="flex-col gap-4 fle">
-                                 <button class="px-4" @click="ToggleDark()">
-                                    dark
-
-                                </button>
-
-                            </div>
 
 
 

@@ -1,5 +1,6 @@
 @import './assets/css/important.css';
 @import './assets/css/responsive.css';
+@import './assets/css/plugin.css';
 
 
 
@@ -18,6 +19,12 @@
         --color-button-accent-hover: 238, 242, 255;
         --color-button-muted: var(--color-fill);
     }
+}
+
+#nprogress .bar {
+    background: rgb(244,
+        117,
+        33) !important;
 }
 
 .floating {
