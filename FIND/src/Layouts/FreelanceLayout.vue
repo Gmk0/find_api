@@ -1,16 +1,16 @@
 <script setup>
 
-import { useCategoryStore, useAuthStore , useLayoutStore } from '../store';
+import { useCategoryStore, useAuthStore, useLayoutStore } from '../store';
 
 import { onMounted } from 'vue';
-import MainSidebarUser from './Partials/MainSidebarUser.vue';
-import SidebarPanelUser from './Partials/SidebarPanelUser.vue';
-import PartialHeaderUser from './Partials/PartialHeaderUser.vue';
+import MainSidebarF from './Partials/MainSidebarF.vue';
+import SidebarPanelF from './Partials/SidebarPanelF.vue';
+import PartialHeaderF from './Partials/PartialHeaderF.vue';
 
-import OtherPanelUser from './Partials/OtherPanelUser.vue';
+import OtherPanelF from './Partials/OtherPanelF.vue';
 
 const categoryStore = useCategoryStore();
-const layoutStore=useLayoutStore();
+const layoutStore = useLayoutStore();
 const userStore = useAuthStore();
 
 
@@ -20,7 +20,7 @@ function resize() {
     if (window.innerWidth < 768) {
         layoutStore.ToogleFalse();
 
-    }else{
+    } else {
 
 
 
@@ -33,7 +33,7 @@ resize();
 </script>
 
 <template>
-    <div class="" :class="{'is-sidebar-open': layoutStore.SidebarExpanded }">
+    <div class="" :class="{ 'is-sidebar-open': layoutStore.SidebarExpanded }">
 
 
 
@@ -44,23 +44,23 @@ resize();
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Main Sidebar -->
-                <MainSidebarUser />
+                <MainSidebarF />
 
 
                 <!-- Sidebar Panel -->
 
-               <SidebarPanelUser />
+                <SidebarPanelF />
             </div>
 
             <!-- App Header -->
-           <PartialHeaderUser />
+            <PartialHeaderF />
 
             <!-- Mobile Searchbar -->
 
 
 
 
-            <OtherPanelUser />
+            <OtherPanelF />
 
             <div class="main-content pt-4 w-full px-[var(--margin-x)] pb-8">
                 <router-view></router-view>
@@ -88,7 +88,5 @@ resize();
 
 
 <style >
-
 @import url('../assets/css/new.css');
-
 </style>

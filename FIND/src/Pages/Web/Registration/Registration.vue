@@ -15,12 +15,18 @@ import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import  axiosClient  from '../../../axios';
 import axios from 'axios';
 
+import {useRoute ,useRouter} from 'vue-router';
+
 import InputNumber from 'primevue/inputnumber';
 
 
 const useCategory= useCategoryStore();
 const useAuth = useAuthStore();
 const useFreelance =useFreelanceStore();
+const router = useRouter();
+const route = useRoute();
+
+const currentUser=computed(()=> useAuth.user);
 
 const categories = computed(() => useCategory.categories);
 const swal = inject('$swal')
@@ -51,7 +57,7 @@ const updatePhotoPreview = () => {
 
 
      image.photo = photoInput.value.files[0];
-     image.post(route('updateProfileUser'), {
+    /* image.post(route('updateProfileUser'), {
         onSuccess: () => {
             console.log('La requête a réussi.');
             // Ajoutez ici le code que vous souhaitez exécuter en cas de succès
@@ -62,6 +68,7 @@ const updatePhotoPreview = () => {
         },
 
     });
+    */
 
 
 };
@@ -74,7 +81,7 @@ const updatePhotoPreview = () => {
 
 const subcategories = ref([]);
 const selectedCategoryId = ref(null);
-const selectedSubcategoryId = ref(null);
+const selectedSubcategoryId = ref([]);
 
 const freelanceElement = ref({
     nom: '',
@@ -278,7 +285,7 @@ const isSectionValid = (step) => {
             return false;
            }
 
-        if (!freelanceElement.value.nom||!freelanceElement.value.prenom|| !langue.value ||!freelanceElement.value.description) {
+        if (!freelanceElement.value.nom||!freelanceElement.value.prenom|| langue.value == null ||!freelanceElement.value.description) {
 
            swal('Veuillez remplir tous les champs de la deuxieme section.');
             return false;
@@ -311,28 +318,32 @@ const increaseStep = () => {
 
 const languagesArray=ref([]);
 
+const languagesArray2 = ref([]);
 function getWorldLanguages() {
     // Effectuer la requête GET vers l'API restcountries
     return axios.get('https://restcountries.com/v3/all')
         .then(response => {
             const data = response.data;
+             const uniqueLanguagesSet = new Set();
 
-            // Créez un ensemble pour stocker les langues uniques
-            const uniqueLanguages = new Set();
-
-            // Parcourez la liste des pays et ajoutez leurs langues à l'ensemble
+              // Parcourir la liste des pays et ajouter leurs langues à l'ensemble temporaire
             data.forEach(country => {
                 if (country.languages) {
-                    // Les langues sont maintenant un objet, pas un tableau
-                    const languages = Object.values(country.languages);
-                    languages.forEach(language => {
-                        uniqueLanguages.add(language);
+                    Object.entries(country.languages).forEach(([id, language]) => {
+                        // Utilisez l'ISO 639-1 code de langue comme identifiant
+                        uniqueLanguagesSet.add(language);
                     });
                 }
             });
 
+            // Convertir l'ensemble temporaire en un tableau d'objets
+            const uniqueLanguagesArray = Array.from(uniqueLanguagesSet).map(language => ({
+                language,
+                name: language // Vous pouvez remplacer 'id' par le nom de la langue si vous le souhaitez
+            }));
+
             // Transformez l'ensemble en un tableau et renvoyez-le
-             languagesArray.value = Array.from(uniqueLanguages);
+               languagesArray.value = uniqueLanguagesArray;
 
              console.log(languagesArray.value);
             //return languagesArray;
@@ -342,6 +353,7 @@ function getWorldLanguages() {
             languagesArray.value=[];
         });
 }
+
 
 
 
@@ -379,9 +391,9 @@ watch(selectedCategoryId, () => {
 });
 
 
-const register =()=>{
+const register =async ()=>{
 
-    if (!freelanceElement.value.email || !freelanceElement.value.numero) {
+    if (!currentUser.value.email || !currentUser.value.phone) {
         swal('Veuillez remplir tous les champs de la 5 em section.');
         return false;
     }
@@ -404,7 +416,31 @@ const register =()=>{
         level : 1,
     });
 
-    useFreelance.storeFreelance(data.value);
+    try{
+        const succes=  await useFreelance.storeFreelance(data.value);
+
+        if(succes)
+        {
+            useAuth.getUser();
+
+            useAuth.isFreelance=true;
+
+            router.go('/freelance/dashboard');
+
+        }
+
+
+
+
+
+
+    }catch(ex) {
+
+        console.log(ex);
+    }
+
+
+
 }
 
 const postData = async () => {
@@ -592,20 +628,23 @@ defineOptions({
                                     <div class="gap-6 md:grid md:grid-cols-1 md:mb-2">
                                         <div class="gap-6 md:grid ">
                                              <div class="flex card justify-content-center">
-                                                <Dropdown v-model="selectedCategoryId" :options="categories" optionValue="id" optionLabel="name" placeholder="Votre categorie" showClear  class="w-full md:w-12rem" />
+                                                <Dropdown v-model="selectedCategoryId" :options="categories" optionValue="id" optionLabel="name" placeholder="Votre categorie" showClear  class="w-full border border-gray-300 md:w-12rem" />
                                             </div>
 
 
                                         </div>
 
-                                        <div v-if="subcategories.length" class="grid grid-cols-2 gap-4 mt-4 mb-6">
+                                        <div v-if="subcategories.length" class="grid gap-4 mt-4 mb-6 lg:grid-cols-2">
+
 
                                                 <div class="flex justify-content-center">
-                                                    <Dropdown v-model="selectedSubcategoryId" :options="subcategories" optionValue="id" optionLabel="name" showClear  placeholder="Sous categorie" class="w-full md:w-10rem" />
+                                                       <MultiSelect v-model="selectedSubcategoryId" :options="subcategories" filter optionLabel="name" optionValue="id" class="w-full border border-gray-300 md:w-10rem" placeholder="Selectionner sous categorie"
+                                                        :maxSelectedLabels="3"  />
+
                                                 </div>
 
                                                 <div class="flex justify-content-center">
-                                                        <Dropdown v-model="freelanceElement.experience" :options="experienceAnnee" showClear  optionValue="id" optionLabel="name" placeholder="Experience" class="w-full md:w-10rem" />
+                                                        <Dropdown v-model="freelanceElement.experience" :options="experienceAnnee" showClear  optionValue="id" optionLabel="name" placeholder="Experience" class="w-full !border !border-gray-300 md:w-10rem" />
                                                  </div>
 
 
@@ -662,16 +701,16 @@ defineOptions({
                                         </div>
 
 
-                                        <div class="grid grid-cols-3 gap-2 mb-4">
-                                            <div>
+                                        <div class="grid gap-2 mb-4 lg:grid-cols-3">
+
                                                 <InputText
                                                 size="large"
-                                                 class="block w-full "
+                                                 class="block w-full border rounded-lg focus:!border-amber-600 border-gray-300 "
                                                  v-model="selectedExperiment.title"
 
                                                 />
 
-                                            </div>
+
 
 
                                                 <Dropdown
@@ -681,7 +720,7 @@ defineOptions({
                                                  size="small"
                                                 optionValue="id" optionLabel="name"
                                                  placeholder="Experience"
-                                                class="w-full md:w-8rem" />
+                                                class="w-full border border-gray-300 md:w-8rem" />
 
 
 
@@ -728,6 +767,7 @@ defineOptions({
 
                                            <InputNumber v-model="freelanceElement.taux"
                                            placeholder="Taux"
+                                           class="block w-full border border-gray-300 rounded-lg "
                                            inputId="locale-us"
                                            locale="en-US"
                                            :minFractionDigits="2" />
@@ -763,7 +803,7 @@ defineOptions({
                             <div>
                                 <div
                                     class="px-4 py-5 bg-white rounded-lg shadow dark:bg-gray-800 dark:border dark:border-gray-200 sm:p-6 ">
-                                    <div class="grid gap-2 md:grid-cols-3">
+                                    <div class="grid gap-2 lg:grid-cols-3">
 
 
                                             <TextInput
@@ -1019,21 +1059,33 @@ defineOptions({
                                             </div>
 
 
-                                            <div class="grid grid-cols-3 gap-2 mb-4">
+                                            <div class="grid gap-2 mb-4 lg:grid-cols-3">
                                                 <div>
-                                                    <TextInput
-                                                     class="block w-full"
-                                                     v-model="selectedLangue.langue"
+                                                      <Dropdown
+                                                        v-model="selectedLangue.langue"
+                                                        :options="languagesArray"
 
-                                                    />
+                                                        filter
+
+                                                         size="small"
+                                                        optionValue="name"
+                                                        optionLabel="name"
+                                                         placeholder="Niveau"
+                                                        class="w-full border border-gray-300 md:w-8rem" />
+
 
                                                 </div>
 
                                                 <div>
-                                                     <TextInput
-                                                        class="block w-full"
-                                                        v-model="selectedLangue.level"
-                                                         />
+
+                                                <Dropdown
+                                                    v-model="selectedLangue.level"
+                                                    :options="levelSelector"
+
+                                                     size="small"
+                                                    optionValue="id" optionLabel="name"
+                                                     placeholder="Niveau"
+                                                    class="w-full border border-gray-300 md:w-8rem" />
 
                                                 </div>
                                                 <div>
@@ -1147,7 +1199,7 @@ defineOptions({
                                             </div>
                                         </div>
 
-                                        <div class="grid gap-4 mt-4 md:grid-cols-3 md:mb-2">
+                                        <div class="grid gap-4 mt-4 lg:grid-cols-3 md:mb-2">
                                             <div>
                                                  <TextInput
                                                  placeholder="Diplomer en"
@@ -1289,7 +1341,7 @@ defineOptions({
                                             </div>
                                         </div>
 
-                                        <div class="grid gap-4 mt-4 md:grid-cols-3 md:mb-2">
+                                        <div class="grid gap-4 mt-4 lg:grid-cols-3 md:mb-2">
                                             <div>
                                                 <TextInput
                                                 class="block w-full"
@@ -1587,7 +1639,8 @@ defineOptions({
 
                                 <div>
                                     <TextInput
-                                    v-model="freelanceElement.email"
+                                    v-model="currentUser.email"
+                                    disabled
                                      />
 
                                 </div>
@@ -1640,7 +1693,8 @@ defineOptions({
 
 
                                 <TextInput
-                                v-model="freelanceElement.numero"
+                               v-model="currentUser.phone"
+                                disabled
 
                                 />
 

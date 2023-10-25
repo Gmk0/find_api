@@ -13,6 +13,22 @@ function withOpacity(variableName) {
     }
 };
 
+const colors = require('tailwindcss/colors');
+
+const navyColor = {
+    50: "#E7E9EF",
+    100: "#C2C9D6",
+    200: "#A3ADC2",
+    300: "#697A9B",
+    400: "#5C6B8A",
+    450: "#465675",
+    500: "#384766",
+    600: "#313E59",
+    700: "#26334D",
+    750: "#222E45",
+    800: "#202B40",
+    900: "#192132",
+};
 
 
 module.exports = {
@@ -63,6 +79,19 @@ module.exports = {
               skin: {
                   hue: withOpacity('--color-fill'),
               },
+          },
+          colors: {
+              info: colors.sky["500"],
+              accent: "#5f5af6",
+              "accent-focus": "#4d47f5",
+              navy: navyColor,
+              secondary: colors.slate,
+              fila: "#fcf9f6",
+              find: colors.orange,
+              danger: colors.rose,
+              primary: colors.amber,
+              success: colors.green,
+              warning: colors.yellow,
           },
     },
   },

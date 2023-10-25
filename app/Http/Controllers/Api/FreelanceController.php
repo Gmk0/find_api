@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FreelanceResource;
 use App\Models\Freelance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FreelanceController extends Controller
 {
@@ -13,6 +14,9 @@ class FreelanceController extends Controller
 
 public function index(Request $request)
 {
+
+
+
     $freelances = Freelance::query()
         ->with('category')
         ->with('user')
@@ -57,8 +61,43 @@ public function getAllFreelance()
 public function storeFreelance(Request $request)
 {
 
+    try{
 
-    return  response()->json(['freelance' =>$request->all()]);
+            DB::beginTransaction();
+
+
+                $data = [
+                    'nom' => $request->nom,
+                    'prenom' => $request->prenom,
+                    'description' => $request->description,
+                    'langue' => $request->langues,
+                    'diplome' => $request->diplome,
+                    'certificat' => $request->certificat,
+                    'site' => $request->site,
+                    'experience' => $request->experience,
+                    'competences' => $request->competences,
+                    'taux_journalier' => $request->taux_journalier,
+                    'comptes' => $request->comptes,
+                    'sub_categorie' => $request->sub_categorie,
+                    'localisation' => $request->localisation,
+                    'category_id' => $request->category_id,
+                    'level' => 1,
+                    'user_id' => $request->user()->id,
+                ];
+
+                Freelance::create($data);
+                Db::commit();
+
+            return  response()->json(['message' => 'comptes creer avec succes', 200]);
+
+    }catch(\Exception $e){
+
+            Db::rollBack();
+
+            return  response()->json(['message' => $e->getMessage(),422]);
+
+    }
+
 
 }
 

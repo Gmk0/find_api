@@ -1,7 +1,7 @@
 <template>
 
-   <div>
-    <div class="flex header-wrap classicHeader animated"
+   <div class="z-[100]">
+    <div class="flex header-wrap !z-[100] classicHeader animated"
             :class="[
                 isSticky ? 'stickyNav fadeInDown  dark:text-white fadeInDown dark:bg-gray-800' : '',
                 route.fullPath === '/' ? '' : 'dark:bg-gray-800 bg-white'
@@ -183,8 +183,18 @@
                 </div>
 
                 <div class="flex items-center justify-end col-span-3 gap-2 lg:col-span-2 ">
+                    <div v-if="currentUser">
+                             <CartComponent />
+                    </div>
+                    <div v-else>
 
-                    <CartComponent />
+                        <router-link class="text-white" to="/login">
+                            connexion
+
+                        </router-link>
+
+                    </div>
+
 
                     <!--
                     <div v-if="$page.props.auth.user"  class="site-cart">

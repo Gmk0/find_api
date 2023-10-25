@@ -8,7 +8,7 @@ import InputLabel from '../../components/InputLabel.vue';
 import InputError from '../../components/InputError.vue';
 import { useToast } from 'primevue/usetoast';
 import InputText from 'primevue/inputtext';
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 
 import { useAuthStore } from '../../store/index';
 
@@ -20,6 +20,14 @@ const form =ref({
     password_confirmation : '',
 
 })
+
+onMounted(() => {
+
+    useStore.isLoandig=false;
+    useStore.authErrors =[];
+
+
+});
 
 const useStore = useAuthStore();
 
@@ -46,26 +54,26 @@ const register =()=>{
                     class="items-center flex-grow transition-all ease-soft duration-350 lg-max:bg-white lg-max:max-h-0 lg-max:overflow-hidden basis-full rounded-xl lg:flex lg:basis-auto">
                     <ul class="flex flex-col pl-0 mx-auto mb-0 list-none lg:flex-row xl:ml-auto">
                         <li>
-                            <a class="flex items-center px-4 py-2 mr-2 text-sm font-normal text-white transition-all duration-250 lg-max:opacity-0 lg-max:text-slate-700 ease-soft-in-out lg:px-2 lg:hover:text-white/75"
+                            <router-link to="/" class="flex items-center px-4 py-2 mr-2 text-sm font-normal text-white transition-all duration-250 lg-max:opacity-0 lg-max:text-slate-700 ease-soft-in-out lg:px-2 lg:hover:text-white/75"
                                 aria-current="page" href="{{url('/')}}">
                                 <i class="mr-1 text-white lg-max:text-slate-700 fa fa-chart-pie opacity-60"></i>
                                 Accueil
-                            </a>
+                            </router-link>
                         </li>
                         <li>
-                            <a class="block px-4 py-2 mr-2 text-sm font-normal text-white transition-all duration-250 lg-max:opacity-0 lg-max:text-slate-700 ease-soft-in-out lg:px-2 lg:hover:text-white/75"
+                            <router-link to="/user/profile" class="block px-4 py-2 mr-2 text-sm font-normal text-white transition-all duration-250 lg-max:opacity-0 lg-max:text-slate-700 ease-soft-in-out lg:px-2 lg:hover:text-white/75"
                                 href="{{url('/user/profile')}}">
                                 <i class="mr-1 text-white lg-max:text-slate-700 fa fa-user opacity-60"></i>
                                Profile
-                            </a>
+                            </router-link>
                         </li>
 
                         <li>
-                            <a class="block px-4 py-2 mr-2 text-sm font-normal text-white transition-all duration-250 lg-max:opacity-0 lg-max:text-slate-700 ease-soft-in-out lg:px-2 lg:hover:text-white/75"
-                                href="{{url('/login')}}">
+                            <router-link class="block px-4 py-2 mr-2 text-sm font-normal text-white transition-all duration-250 lg-max:opacity-0 lg-max:text-slate-700 ease-soft-in-out lg:px-2 lg:hover:text-white/75"
+                                to="/login">
                                 <i class="mr-1 text-white lg-max:text-slate-700 fas fa-key opacity-60"></i>
                                Connexion
-                            </a>
+                            </router-link>
                         </li>
                     </ul>
 
@@ -85,7 +93,7 @@ const register =()=>{
                         <div class="w-full max-w-full px-3 mx-auto mt-0 text-center lg:flex-0 shrink-0 lg:w-5/12">
                             <h1 class="mt-12 mb-2 text-white">Bienvenue</h1>
                             <p class="text-white">
-                                <span>dDADA</span>
+                                <span>Trouvez les services parfaits dont vous avez besoin</span>
                             </p>
                         </div>
                     </div>
@@ -97,7 +105,7 @@ const register =()=>{
                             <div
                                 class="relative z-0 flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
                                 <div class="p-6 mb-0 text-center bg-white border-b-0 rounded-t-2xl">
-                                    <h5>fdada</h5>
+                                    <h5>Inscrivez-vous</h5>
                                 </div>
                                 <div class="flex flex-wrap px-3 -mx-3 sm:px-6 xl:px-12">
                                     <div class="w-3/12 max-w-full px-1 ml-auto flex-0">
@@ -169,7 +177,7 @@ const register =()=>{
                                                     required
                                                     placeholder="Name"
                                                     autofocus
-                                                    autocomplete="name"
+
                                                 />
                                                 <div v-if="useStore.error.name">
                                                           <InputError :message="useStore.error.name[0]" class="mt-2"/>
@@ -182,12 +190,11 @@ const register =()=>{
                                                 id="email"
                                                 v-model="form.email"
                                                 placeholder="email"
-                                                type="text"
+                                                type="email"
                                                 class="block w-full mt-1"
-
                                                 required
                                                 autofocus
-                                                autocomplete="name"
+
                                             />
                                             <div v-if="useStore.error.email">
                                              <InputError :message="useStore.error.email[0]" class="mt-2"/>
@@ -198,7 +205,7 @@ const register =()=>{
                                             <TextInput
                                                 id="Telephone"
                                                 v-model="form.phone"
-                                                type="email"
+                                                type="text"
                                                 class="block w-full mt-1"
                                                 placeholder="Telephone"
                                                 required
@@ -273,7 +280,10 @@ const register =()=>{
                                         <button type="submit"
                                             class="inline-block w-full px-6 py-3 mt-6 mb-2 text-xs font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 gradient hover:border-slate-700 hover:bg-slate-700 hover:text-white">
 
-                                            <span >messages.enregistre</span>
+
+                                                        <span v-if="!useStore.loading">Inscription</span>
+
+                                                        <span v-if="useStore.loading">Inscription...</span>
 
 
 
@@ -282,9 +292,9 @@ const register =()=>{
                                         </button>
 
                                     </div>
-                                    <p class="mt-4 mb-0 text-sm leading-normal">messages.AlreadyMessages
+                                    <p class="mt-4 mb-0 text-sm leading-normal">Vous avez deja un compte ?
                                         <router-link :to="{name:'login'}"
-                                            class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-orange-600 to-orange-400 bg-clip-text">messages.SignIn
+                                            class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-orange-600 to-orange-400 bg-clip-text">Connectez vous
                                         </router-link>
                                     </p>
                                 </form>

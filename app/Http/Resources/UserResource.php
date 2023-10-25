@@ -25,7 +25,7 @@ class UserResource extends JsonResource
             'last_activity'=>$this->last_activity,
             'profile_photo_path'=>$this->profile_photo_path,
             'profile_photo_url'=>$this->profile_photo_url,
-            'isFreelance' => $this->freelance ? true:false,
+            'isFreelance' => $this->freelance ? true : false,
             'created_at'=>$this->created_at,
 
             ];

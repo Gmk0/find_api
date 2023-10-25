@@ -1,12 +1,12 @@
 <script setup>
 
-import { useLayoutStore }  from '../../store';
+import { useLayoutStore } from '../../store';
 
-import {ref,reactive} from 'vue';
+import { ref, reactive } from 'vue';
 
 
-const  pageName = ref('');
-const  expandedItems = ref([]);
+const pageName = ref('');
+const expandedItems = ref([]);
 
 
 
@@ -14,13 +14,13 @@ const  expandedItems = ref([]);
 const LayoutStore = useLayoutStore();
 
 
-const toogleRightExpande = ()=>{
+const toogleRightExpande = () => {
 
     LayoutStore.toogleRight()
 
-    if(LayoutStore.SidebarExpanded){
+    if (LayoutStore.SidebarExpanded) {
         document.body.classList.add("is-sidebar-open")
-    }else{
+    } else {
         document.body.classList.remove("is-sidebar-open")
     }
 }
@@ -29,7 +29,7 @@ const toogleRightExpande = ()=>{
 
 const toggleAccordion = (key) => {
 
-        if (expandedItems.value.includes(key)) {
+    if (expandedItems.value.includes(key)) {
         expandedItems.value = expandedItems.value.filter((item) => item !== key);
         console.log(expandedItems.value)
     } else {
@@ -37,7 +37,7 @@ const toggleAccordion = (key) => {
     }
 };
 
-const scrollToAndExpand=(routeName, key)=> {
+const scrollToAndExpand = (routeName, key) => {
     // Ajoutez la logique pour faire défiler la vue et ouvrir l'élément
     // Vous pouvez utiliser Vue Router pour la navigation
 };
@@ -50,19 +50,19 @@ const sidebarMenu = {
                 title: 'Service',
                 submenu: [
                     {
-                            title: 'Ajouter un service',
-                            route_name: 'freelance.service.create',
+                        title: 'Ajouter un service',
+                        route_name: 'freelance.service.create',
 
                     },
                     {
 
-                            title: 'Liste service',
-                            route_name: 'freelance.service.list',
+                        title: 'Liste service',
+                        route_name: 'freelance.service.list',
 
                     },
                 ],
             },
-             freelance: {
+            freelance: {
                 title: 'freelance',
                 submenu: [
                     {
@@ -123,10 +123,11 @@ const sidebarMenu = {
 
 
 
-                                <li  @click="toggleAccordion(keyMenu)">
-                                    <a
-                                    :class="{ 'text-slate-800 font-semibold dark:text-navy-50': expandedItems.includes(keyMenu),
-                                     'text-slate-600 dark:text-navy-200': !expandedItems.includes(keyMenu) }"
+                                <li @click="toggleAccordion(keyMenu)">
+                                    <a :class="{
+                                        'text-slate-800 font-semibold dark:text-navy-50': expandedItems.includes(keyMenu),
+                                        'text-slate-600 dark:text-navy-200': !expandedItems.includes(keyMenu)
+                                    }"
                                         class="flex items-center justify-between py-2 text-xs+ tracking-wide  outline-none transition-[color,padding-left] duration-300 ease-in-out hover:text-slate-800  dark:hover:text-navy-50">
                                         <span>{{ menu.title }}</span>
 
@@ -141,7 +142,7 @@ const sidebarMenu = {
 
                                     <ul v-if="expandedItems.includes(keyMenu)">
                                         <template v-for="(submenu, keySubMenu) in menu.submenu">
-                                            <li  @click="scrollToAndExpand(submenu.route_name, keyMenu)">
+                                            <li @click="scrollToAndExpand(submenu.route_name, keyMenu)">
                                                 <a :href="submenu.route_name"
                                                     class="flex items-center justify-between p-2 text-xs+ tracking-wide outline-none transition-[color,padding-left] duration-300 ease-in-out hover:pl-4"
                                                     :class="{ 'text-primary dark:text-accent-light font-medium': submenu.route_name === pageName, 'text-slate-600 hover:text-slate-800 dark:text-navy-200 dark:hover:text-navy-50': submenu.route_name !== pageName }">

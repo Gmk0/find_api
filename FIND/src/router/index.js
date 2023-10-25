@@ -169,6 +169,25 @@ const routes = [
             },
         ]
 
+    },
+    {
+        path: "/freelance",
+        name: "Checkout.status",
+        meta: {
+            requiresAuth: true,
+            requiresFreelance: true,
+        },
+        component: () => import("../Layouts/FreelanceLayout.vue"),
+        children :[
+            {
+                path: 'dashboard',
+                name: 'freelance.dashboard',
+                component: () => import("../Pages/Freelance/Dashboard/Dashboard.vue"),
+            },
+
+
+        ]
+
     }
 
 
@@ -193,11 +212,13 @@ router.beforeEach((to, from, next) => {
     if (to.meta.requiresGuest && user.token) {
         next({ name: 'Home' })
     }
-    if (to.meta.requiresAuth && to.name === 'registration.store' && user.user.isFreelance)
+    if (to.meta.requiresAuth && to.name === 'registration.store' && user.freelance === true)
+    {
+        next({ name: 'freelance.dashboard' })
+    } if (to.meta.requiresAuth && to.meta.requiresFreelance && user.freelance === false)
     {
         next({ name: 'Home' })
     }
-
     next();
 
 

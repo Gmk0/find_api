@@ -6,7 +6,7 @@ import InputLabel from '../../components/InputLabel.vue';
 import InputError from '../../components/InputError.vue';
 import { useToast } from 'primevue/usetoast';
 import InputText from 'primevue/inputtext';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 import { useAuthStore } from '../../store/index';
 
@@ -19,13 +19,20 @@ const form = ref({
 
 const useStore = useAuthStore();
 
-const submit =()=>{
+const submit= ()=>{
+
 
     useStore.handleSubmit(form.value);
 
 };
 
+onMounted(() => {
 
+    useStore.isLoandig = false;
+    useStore.authErrors = [];
+
+
+});
 
 
 
@@ -66,22 +73,22 @@ const submit =()=>{
                                         <router-link to="/" class="flex items-center px-4 py-2 mr-2 text-sm font-normal transition-all dark:text-gray-200 lg-max:opacity-0 duration-250 ease-soft-in-out text-slate-700 lg:px-2"
                                             aria-current="page">
                                             <i class="mr-1 fa fa-chart-pie opacity-60"></i>
-                                            messages.Home
+                                            Accueim
                                         </router-link>
                                     </li>
                                     <li>
-                                        <a class="block px-4 py-2 mr-2 text-sm font-normal transition-all dark:text-gray-200 lg-max:opacity-0 duration-250 ease-soft-in-out text-slate-700 lg:px-2"
+                                        <router-link to="/prifle" class="block px-4 py-2 mr-2 text-sm font-normal transition-all dark:text-gray-200 lg-max:opacity-0 duration-250 ease-soft-in-out text-slate-700 lg:px-2"
                                             href="">
                                             <i class="mr-1 fa fa-user opacity-60"></i>
                                             Profile
-                                        </a>
+                                        </router-link>
                                     </li>
                                     <li>
-                                        <a class="block px-4 py-2 mr-2 text-sm font-normal transition-all dark:text-gray-200 lg-max:opacity-0 duration-250 ease-soft-in-out text-slate-700 lg:px-2"
-                                            href="{{url('/register')}}">
+                                        <router-link to="/register" class="block px-4 py-2 mr-2 text-sm font-normal transition-all dark:text-gray-200 lg-max:opacity-0 duration-250 ease-soft-in-out text-slate-700 lg:px-2"
+                                           >
                                             <i class="mr-1 fas fa-user-circle opacity-60"></i>
-                                            messages.enregistre
-                                        </a>
+                                            s'inscrire
+                                        </router-link >
                                     </li>
 
                                 </ul>
@@ -116,8 +123,8 @@ const submit =()=>{
 
                                         <h3
                                             class="relative z-10 font-bold text-transparent bg-gradient-to-tl from-amber-600 to-amber-400 bg-clip-text">
-                                            'messages.Welcomeback'</h3>
-                                        <p class="mb-0">'messages.descriptionSignin</p>
+                                        Content de te revoir</h3>
+                                        <p class="mb-0">Entrez votre email et votre mot de passe pour vous connecter</p>
                                     </div>
                                     <div class="flex-auto p-6">
                                         <form role="form" @submit.prevent="submit">
@@ -129,9 +136,9 @@ const submit =()=>{
                                                             class="block w-full mt-1"
                                                                v-model="form.email"
                                                             required
-                                                            placeholder="Name"
+                                                            placeholder="email"
                                                             autofocus
-                                                            autocomplete="name"
+                                                            autocomplete="email"
                                                         />
                                                          <div v-if="useStore.error.email">
                                                             <span class="text-red-600">{{ useStore.error.email[0] }}</span>
@@ -165,7 +172,7 @@ const submit =()=>{
                                                         <div
                                                             class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-600">
                                                         </div>
-                                                        <span class="ml-3 text-sm font-medium text-gray-400 dark:text-gray-500">messages.Rememberme</span>
+                                                        <span class="ml-3 text-sm font-medium text-gray-400 dark:text-gray-500">Souviens-toi de moi</span>
                                                     </label>
                                                 </div>
 
@@ -183,7 +190,9 @@ const submit =()=>{
                                                 <button type="submit"
                                                     class="inline-block w-full px-6 py-3 mt-6 mb-0 text-xs font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro ease-soft-in tracking-tight-soft gradient hover:scale-102 hover:shadow-soft-xs active:opacity-85">
 
-                                                    <span>'messages.SignIn</span>
+                                                    <span v-if="!useStore.loading">Connexion</span>
+
+                                                    <span v-if="useStore.loading">Connexion...</span>
 
 
                                                 </button>
@@ -251,9 +260,9 @@ const submit =()=>{
                                     <div
                                         class="p-2 px-1 pt-0 text-center bg-transparent border-t-0 border-t-solid rounded-b-2xl lg:px-2">
                                         <p class="mx-auto mb-2 text-sm leading-normal">
-                                            'messages.DontHaveCount
-                                            <a href="{{url('/register')}}"
-                                                class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-amber-600 to-amber-400 bg-clip-text">messages.enregistre'</a>
+                                            Vous avez déjà un compte?
+                                            <router-link  to="/register"
+                                                class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-amber-600 to-amber-400 bg-clip-text">S'inscrire</router-link >
                                         </p>
                                     </div>
                                 </div>

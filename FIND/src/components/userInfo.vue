@@ -22,7 +22,7 @@
                                    {{ currentUser.email}}
                                 </div>
                               <div class="block px-4 py-2 text-xs text-gray-400">
-                                    {{ currentUser.isFreelance}}
+                                    {{ userStore.freelance }}
                             </div>
 
                              <DropdownLink href="user.dashboard">

@@ -29,10 +29,16 @@ import FreelanceCard from './components/FreelanceCard.vue';
 import { TailwindPagination } from 'laravel-vue-pagination';
 import CartComponent from './components/CartComponent.vue';
 
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import NotificationComponent from './components/NotificationComponent.vue';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
+import MultiSelect from 'primevue/multiselect';
+
 
 import 'nprogress/nprogress.css';
 import NProgress from 'nprogress';
+
+//import DataTable from 'laravel-vue-datatable';
 
 NProgress.configure({ color: 'red' });
 
@@ -50,6 +56,7 @@ app.use(pinia)
     .use(VueSweetalert2)
     .use(PrimeVue)
     .use(ToastService)
+    //.use(DataTable)
     .component('Collapse', Collapse)
     .component('ServiceCard', ServiceCard)
     .component('Dropdown', Dropdown)
@@ -62,6 +69,8 @@ app.use(pinia)
     .component('FreelanceCard', FreelanceCard)
     .component('UserLayout', UserLayout)
     .component('TailwindPagination', TailwindPagination)
+    .component('NotificationComponent', NotificationComponent)
+    .component('MultiSelect', MultiSelect)
 
     .mount('#app');
 

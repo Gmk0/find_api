@@ -143,13 +143,18 @@ export const useAuthStore = defineStore(
         authErrors: [],
         tokenAuth: sessionStorage.getItem('TOKEN'),
         authStatus: null,
+        isLoandig :false,
+            isFreelance :false,
     }),
 
     getters: {
         user: (state) => state.authUser,
         error: (state) => state.authErrors,
         status: (state) => state.authStatus,
-        token: (state) => state.tokenAuth
+        token: (state) => state.tokenAuth,
+        loading: (state) => state.isLoandig,
+        freelance:(state)=> state.isFreelance,
+
 
     },
     actions: {
@@ -170,14 +175,24 @@ export const useAuthStore = defineStore(
         },
         async getUser() {
             //this.getToken();
-            const response = await axiosClient.get('/getUser');
-            this.authUser = response.data.data;
+            try{
+                const response = await axiosClient.get('/getUser');
+                this.authUser = response.data.data;
+                this.isFreelance = response.data.data.isFreelance;
+
+            }catch(e){
+                this.tokenAuth=null;
+            }
+
 
         },
         async handleSubmit(data) {
             this.authErrors = [];
             // this.getToken();
             try {
+
+                this.isLoandig = true;
+
                 const response = await axiosClient.post('/login', {
                     email: data.email,
                     password: data.password,
@@ -185,6 +200,9 @@ export const useAuthStore = defineStore(
 
                 this.authUser = response.data.data;
                 this.getTokenElement(response.data.token)
+                this.isFreelance = response.data.data.isFreelance;
+
+                this.isLoandig = false;
 
                 this.router.push('/');
 
@@ -192,7 +210,9 @@ export const useAuthStore = defineStore(
             } catch (error) {
                 if (error.response.status === 422) {
                     this.authErrors = error.response.data.errors;
+                    this.isLoandig = false;
                 }
+                this.isLoandig = false;
 
             }
         },
@@ -200,6 +220,7 @@ export const useAuthStore = defineStore(
 
             this.authErrors = [];
             //this.getToken();
+            this.isLoandig = true;
 
             try {
                 const response = await axiosClient.post('/register', {
@@ -210,7 +231,10 @@ export const useAuthStore = defineStore(
                     password_confirmation: data.password_confirmation
                 });
 
+                this.isLoandig = false;
+
                 this.authUser = response.data.data;
+                this.isFreelance = response.data.data.isFreelance;
                 this.getTokenElement(response.data.token)
                 this.router.push('/');
 
@@ -219,6 +243,8 @@ export const useAuthStore = defineStore(
                 if (error.response.status === 422) {
                     this.authErrors = error.response.data.errors;
                 }
+                this.isLoandig = false;
+
 
             }
 
